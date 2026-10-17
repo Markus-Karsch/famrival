@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: famrival
+      POSTGRES_PASSWORD: famrival
+      POSTGRES_DB: famrival
+    ports:
+      # Host port 5433 leaves a local PostgreSQL on 5432 untouched.
+      - '5433:5432'
+    volumes:
+      - famrival-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U famrival -d famrival']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  famrival-postgres:
