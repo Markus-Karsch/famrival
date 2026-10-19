@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { toDataURL } from 'qrcode'
 import { useRoute } from 'vue-router'
+import { spielseasonShareUrl } from '@/share-url'
 import { useSpielseasonStore } from '@/stores/spielseason'
 
 const route = useRoute()
@@ -18,7 +19,7 @@ const shareUrl = computed(() => {
   if (!hash.value) {
     return ''
   }
-  return `${window.location.origin}/spielseason/${encodeURIComponent(hash.value)}`
+  return spielseasonShareUrl(window.location.origin, hash.value)
 })
 
 const mismatch = computed(

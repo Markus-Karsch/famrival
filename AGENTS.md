@@ -324,9 +324,7 @@ checks do not make the Blueprint unusable.
 - Typecheck: `npm run type-check`
 - Lint: `npm run lint`
 - Format: `npm run format`
-
-There is no unit test command yet. Run `/tests` or `$tests` to add one and update
-this section with the real test commands.
+- Unit tests: `npm run test`
 
 Browser testing is also opt-in. Run `/tests browser` or `$tests browser` to add
 or normalize a browser harness and document its exact command as `Browser
