@@ -19,6 +19,6 @@ Start with your first real slice of functionality.
 Replace these examples with your own features:
 
 - [x] 1. **Spielseason eröffnen** - Benutzer öffnet App und kann eine Spielseason eröffnen
-- [ ] 2. **Aktuelle Spielseason teilen** - Benutzer erhält einen Link mit einem Hash, den  er mit Benutzer teilen kann. Der Link ist auch als QR verfügbar
+- [x] 2. **Aktuelle Spielseason teilen** - Benutzer erhält einen Link mit einem Hash, den  er mit Benutzer teilen kann. Der Link ist auch als QR verfügbar
 - [ ] 3. **Unit-Tests einrichten**
 - [ ] 4. **Browser-Tests einrichten**

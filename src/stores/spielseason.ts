@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 
 interface SpielseasonResponse {
   ok?: boolean
-  spielseason?: { id: number; createdAt: string } | null
+  spielseason?: { id: number; createdAt: string; hash?: string } | null
   error?: string
 }
 
@@ -12,6 +12,22 @@ export const useSpielseasonStore = defineStore('spielseason', () => {
   const loaded = ref(false)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const hash = ref<string | null>(null)
+
+  function remember(spielseason: SpielseasonResponse['spielseason']) {
+    if (spielseason == null) {
+      open.value = false
+      hash.value = null
+      return
+    }
+    open.value = true
+    if (typeof spielseason.hash !== 'string' || spielseason.hash.length === 0) {
+      hash.value = null
+      error.value = 'Die Spielseason kann nicht geteilt werden.'
+      return
+    }
+    hash.value = spielseason.hash
+  }
 
   async function readResponse(response: Response) {
     return (await response.json()) as SpielseasonResponse
@@ -27,10 +43,11 @@ export const useSpielseasonStore = defineStore('spielseason', () => {
         error.value = body.error ?? 'PostgreSQL ist nicht erreichbar.'
         return
       }
-      open.value = body.spielseason != null
+      remember(body.spielseason)
       loaded.value = true
     } catch {
       open.value = false
+      hash.value = null
       error.value = 'Die API ist nicht erreichbar.'
     } finally {
       loading.value = false
@@ -46,7 +63,8 @@ export const useSpielseasonStore = defineStore('spielseason', () => {
         error.value = body.error ?? 'PostgreSQL ist nicht erreichbar.'
         return
       }
-      open.value = true
+      remember(body.spielseason)
+      loaded.value = true
     } catch {
       error.value = 'Die API ist nicht erreichbar.'
     } finally {
@@ -54,5 +72,5 @@ export const useSpielseasonStore = defineStore('spielseason', () => {
     }
   }
 
-  return { open, loaded, loading, error, load, openSeason }
+  return { open, loaded, loading, error, hash, load, openSeason }
 })

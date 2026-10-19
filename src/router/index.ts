@@ -9,6 +9,11 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+    {
+      path: '/spielseason/:hash',
+      name: 'spielseason',
+      component: HomeView,
+    },
   ],
 })
 
