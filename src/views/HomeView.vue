@@ -4,11 +4,22 @@ import { storeToRefs } from 'pinia'
 import { toDataURL } from 'qrcode'
 import { useRoute } from 'vue-router'
 import { spielseasonShareUrl } from '@/share-url'
+import { useSpielerStore } from '@/stores/spieler'
 import { useSpielseasonStore } from '@/stores/spielseason'
 
 const route = useRoute()
 const spielseason = useSpielseasonStore()
+const spieler = useSpielerStore()
 const { open, loaded, loading, error, hash } = storeToRefs(spielseason)
+const {
+  players,
+  loaded: playersLoaded,
+  saving,
+  error: playerError,
+  liveError,
+  rememberedId,
+} = storeToRefs(spieler)
+const nameInput = ref('')
 
 const routeHash = computed(() => {
   const value = route.params.hash
@@ -34,6 +45,40 @@ const mismatch = computed(
 const showShare = computed(
   () => open.value && hash.value != null && !error.value && !mismatch.value,
 )
+
+const showPlayers = computed(
+  () =>
+    loaded.value &&
+    !error.value &&
+    open.value &&
+    routeHash.value != null &&
+    hash.value != null &&
+    routeHash.value === hash.value,
+)
+
+const selfName = computed(() => {
+  const id = rememberedId.value
+  if (id == null) {
+    return null
+  }
+  return players.value.find((player) => player.id === id)?.name ?? null
+})
+
+watch(showPlayers, (visible) => {
+  if (!visible || routeHash.value == null) {
+    spieler.stop()
+    nameInput.value = ''
+    return
+  }
+  void spieler.open(routeHash.value)
+})
+
+function submitName() {
+  if (routeHash.value == null) {
+    return
+  }
+  void spieler.save(routeHash.value, nameInput.value)
+}
 const qrCodeUrl = ref('')
 const qrError = ref<string | null>(null)
 
@@ -93,6 +138,27 @@ onMounted(() => {
         Spielseason eröffnen
       </button>
     </section>
+
+    <section v-if="showPlayers" class="players" aria-live="polite">
+      <h2>Spieler</h2>
+      <p v-if="selfName">Du spielst als {{ selfName }}.</p>
+      <form v-else @submit.prevent="submitName">
+        <label for="spielername">Spielername</label>
+        <input
+          id="spielername"
+          v-model="nameInput"
+          autocomplete="nickname"
+          @input="spieler.clearSaveError()"
+        />
+        <p v-if="playerError">{{ playerError }}</p>
+        <button type="submit" :disabled="saving">Name speichern</button>
+      </form>
+      <p v-if="liveError">{{ liveError }}</p>
+      <p v-if="playersLoaded && players.length === 0">Noch kein Spieler.</p>
+      <ul v-else-if="players.length > 0">
+        <li v-for="player in players" :key="player.id">{{ player.name }}</li>
+      </ul>
+    </section>
   </main>
 </template>
 
@@ -142,5 +208,36 @@ a {
 img {
   width: 10rem;
   height: 10rem;
+}
+
+.players,
+form {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: start;
+}
+
+h2,
+p {
+  margin: 0;
+}
+
+label {
+  font-weight: 600;
+}
+
+input {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--color-border-hover);
+  border-radius: 8px;
+  background: var(--color-background);
+  color: var(--color-heading);
+  font: inherit;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1.25rem;
 }
 </style>
