@@ -325,8 +325,4 @@ checks do not make the Blueprint unusable.
 - Lint: `npm run lint`
 - Format: `npm run format`
 - Unit tests: `npm run test`
-
-Browser testing is also opt-in. Run `/tests browser` or `$tests browser` to add
-or normalize a browser harness and document its exact command as `Browser
-tests`. Check and Continuous Mode can then reuse it without installing tooling
-mid-feature.
+- Browser tests: `npm run test:browser`
