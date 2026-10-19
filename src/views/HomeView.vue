@@ -1,26 +1,32 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
-import { useDatabaseStore } from '@/stores/database'
+import { useSpielseasonStore } from '@/stores/spielseason'
 
-const database = useDatabaseStore()
-const { status, loading } = storeToRefs(database)
+const spielseason = useSpielseasonStore()
+const { open, loaded, loading, error } = storeToRefs(spielseason)
 
 onMounted(() => {
-  void database.refresh()
+  void spielseason.load()
 })
 </script>
 
 <template>
   <main>
     <h1>Famrival</h1>
-    <p>Der Pinia-Store holt den Datenbankstatus über die API.</p>
 
     <section class="status" aria-live="polite">
-      <p v-if="loading">Verbindung wird geprüft…</p>
-      <p v-else-if="status?.ok">PostgreSQL verbunden: {{ status.database }}</p>
-      <p v-else>{{ status?.error ?? 'Noch kein Status.' }}</p>
-      <button type="button" :disabled="loading" @click="database.refresh()">Erneut prüfen</button>
+      <p v-if="open">Eine Spielseason ist eröffnet.</p>
+      <p v-else-if="loaded && !error">Noch keine Spielseason.</p>
+      <p v-if="error">{{ error }}</p>
+      <button
+        v-if="!open && (loaded || error)"
+        type="button"
+        :disabled="loading"
+        @click="spielseason.openSeason()"
+      >
+        Spielseason eröffnen
+      </button>
     </section>
   </main>
 </template>
