@@ -22,3 +22,4 @@ Replace these examples with your own features:
 - [x] 2. **Aktuelle Spielseason teilen** - Benutzer erhält einen Link mit einem Hash, den  er mit Benutzer teilen kann. Der Link ist auch als QR verfügbar
 - [x] 3. **Unit-Tests einrichten**
 - [x] 4. **Browser-Tests einrichten**
+- [ ] 5. **Spieler Namen eingegeben** - Benutzer kann seinen Spielernamen eingeben, nach dem der Link geöffnet wurde. Sobald der Name eingegeben ist, sehen das auch die anderen Spieler sofort. Mit hilfe  von web socket
