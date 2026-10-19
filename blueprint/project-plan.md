@@ -9,43 +9,43 @@
 
 ## 1. Problem - What problem are we solving?
 
-Add the problem that this project solves and its main purpose
+Ich möchte eine Anwendung bauen mit dem Name FamRival - Es handelt sich um ein Family Competition Game bei dem jedes Familienmitglied gewinnnen kann, egal ob Kind, Eltern, Großeltern oder Freunde. Das Spiel konzentriert sich aktuell auf Mathespiele
 
 ## 2. Users - Who is this for?
 
-What kind of users are you focusing on? eg. new programmers, college students, single people
+Kind, Eltern, Großeltern oder Freunde
 
 ## 3. Features - What does the MVP need?
 
-High level list of features. One line each, don't go into deep detail
+- Es gibt eine Möglichkeit ein Spiel zu starten.
+- Nach dem Spiel start gibt es einen Code, damit andere Teilnehmer teilnehmen können
+- Es gibt eine Websocketverbindung für echtzeit rückmeldung
+- Es gibt eine Art Qualifikation um festzustellen, wie gut der Teilnehmer ist. Dabei spielen Richtigkeit und Zeit eine Rolle.
+- Der MVP ist, dass Kinder auch gegen ihre Eltern, andere Familienmitglieder gewinnen können. Das wird dadurch erreicht, dass Eltern schwere Aufgabe bekommen, damit alle den gleichen Schwierigkeitsgrad haben. Eltern sollen nicht absichtlicht langsam oder fehler machen, damit das Kind gewinnt. Es soll ein fairer Wettbewerb sein, wo sich 
 
 ## 4. Data - What are we storing?
 
-List of data that will be stored eg. users, products, stats
+- aktuelle Spielseason werden gespeichert
+- welche Spieler sich gerade in der session sind
+- aktueller Stand im Spiel um es zu verteilen
 
 ## 5. Tech - What stack are we using?
 
-The stack this project will use eg. Next.js, Neon Postgres, ShadCN UI, Claude Haiku for content generation
+Frontend: vue
+Backend: node, express
+datenbank: postgress
 
 ## 6. Monetize - How will this make money?
 
-Explain how you plan to make money. eg. Ads, memberships, etc
+erstmal ohne werbung
 
 ## 7. UI/UX - How should this look and feel?
 
-Describe the look and feel. Add examples if you want
+Wie ein spiel
 
 ## 8. Deployment - Where and how will this ship?
 
-Target host if known, such as Render or Vercel. Include app type, build command,
-start command or output directory, env vars by name, database or storage needs,
-workers or cron jobs, health check path, and domain notes if you know them.
+Soll erstmal lokal laufen
 
 ## 9. Usage model and constraints (optional)
 
-Record only what is known and relevant: expected user count and approximate scale;
-local, internal, or internet-facing operation; trusted or adversarial users;
-single-tenant or multi-tenant use when applicable; required security, compliance,
-availability, or audit constraints; and explicit non-requirements. Leave this
-section unanswered when those facts are not established. Unknown does not mean
-enterprise, hostile, multi-tenant, or single-user.
