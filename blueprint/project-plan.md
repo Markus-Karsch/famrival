@@ -34,6 +34,7 @@ Kind, Eltern, Großeltern oder Freunde
 Frontend: vue
 Backend: node, express
 datenbank: postgress
+Unit-Tests mit Vitest, Browser-Tests mit Playwright.
 
 ## 6. Monetize - How will this make money?
 

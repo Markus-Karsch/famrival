@@ -1,6 +1,6 @@
 # FamRival - Project Overview
 
-<!-- blueprint:source-hash 6cad0a40b0e309970a3eabcb753ddca216bdcc907539f6d837cb7ed00a2908f6 -->
+<!-- blueprint:source-hash 3ca58ad1f98708252d9034bc691f403ef2a5dc4cf8cfdb4e8b1ac7c4ef409191 -->
 
 > Familien-Wettbewerbsspiel für Mathe, in dem Kinder, Eltern, Großeltern und Freunde fair gegeneinander gewinnen können.
 
@@ -19,14 +19,18 @@ Unterschiedliche Zugänge, Konten oder Rollenrechte sind nicht festgelegt.
 
 ## Features
 
-Baureihenfolge aus dem Build-Plan. Das faire Schwierigkeitsmodell steht im Projektplan, aber noch nicht als eigener Punkt in dieser Liste.
+Baureihenfolge aus dem Build-Plan. Punkt 1 ist erledigt. Als Nächstes kommt Punkt 2.
 
-1. **Spielseason eröffnen** - Wer die App öffnet, kann eine Spielseason starten.
+1. **Spielseason eröffnen** - Wer die App öffnet, kann eine Spielseason starten. Erledigt.
 2. **Aktuelle Spielseason teilen** - Die eröffnete Spielseason lässt sich über einen Link mit Hash und einen QR-Code teilen.
+3. **Unit-Tests einrichten** - Vitest für Unit-Tests aufsetzen.
+4. **Browser-Tests einrichten** - Playwright für Browser-Tests aufsetzen.
+
+Das faire Schwierigkeitsmodell steht im Projektplan, aber noch nicht als eigener Punkt in dieser Liste.
 
 ## Data model
 
-Abgeleitet aus den gespeicherten Spielseasons, den Spielern darin und dem Stand, der verteilt werden soll. Feature 2 braucht den Hash im Link.
+Abgeleitet aus den gespeicherten Spielseasons, den Spielern darin und dem Stand, der verteilt werden soll. Feature 2 braucht den Hash im Link. Die Testpunkte speichern keine eigenen Daten.
 
 ### Spielseason
 
@@ -51,6 +55,8 @@ Abgeleitet aus den gespeicherten Spielseasons, den Spielern darin und dem Stand,
 - **Vue** - Frontend
 - **Node.js und Express** - Backend
 - **PostgreSQL** - Datenbank für Spielseason, Spieler und Spielstand
+- **Vitest** - Unit-Tests, noch nicht eingerichtet
+- **Playwright** - Browser-Tests, noch nicht eingerichtet
 
 ## Monetization
 
@@ -73,9 +79,10 @@ Die Anwendung soll vorerst lokal laufen. PostgreSQL wird dafür gebraucht.
 
 ## Open questions
 
-- Projektplan Abschnitt 3 nennt Spielstart, einen Teilnahme-Code, WebSockets, eine Qualifikation aus Richtigkeit und Zeit sowie schwerere Aufgaben für stärkere Spieler. Der Build-Plan enthält nur die Punkte 1 und 2.
+- Projektplan Abschnitt 3 nennt Spielstart, einen Teilnahme-Code, WebSockets, eine Qualifikation aus Richtigkeit und Zeit sowie schwerere Aufgaben für stärkere Spieler. Im Build-Plan stehen davon nur Punkt 1 und Punkt 2.
 - Feature 2 nennt einen Link mit Hash und einen QR-Code. Abschnitt 3 nennt einen Code nach dem Spielstart. Ob das dasselbe ist, ist offen.
 - Der letzte Satz in Abschnitt 3 bricht ab: "wo sich ".
 - Identität der Spieler und die Felder des Spielstands fehlen.
 - Der Projektplan nennt Express. Die vorhandene API ist ein kleiner Node-HTTP-Server ohne Express.
 - Oberfläche und Deployment sind nur als "wie ein Spiel" und "lokal" beschrieben.
+- Punkte 3 und 4 sind Einrichtung von Testwerkzeugen, keine Spielfunktion. Der Projektplan nennt Vitest und Playwright, die Commands in `AGENTS.md` haben noch kein Testkommando.
