@@ -43,6 +43,7 @@ const shownAt = ref(0)
 const foundLevels = ref<Partial<Record<Operation, string>>>({})
 const pendingNiveau = ref<{ plus: string; minus: string; mal: string } | null>(null)
 const showLevelMessage = ref(false)
+const showSpielraum = ref(false)
 const operations: Operation[] = ['plus', 'minus', 'mal']
 const numpadDigits = ['7', '8', '9', '4', '5', '6', '1', '2', '3']
 
@@ -108,6 +109,7 @@ function resetQuiz() {
   foundLevels.value = {}
   pendingNiveau.value = null
   showLevelMessage.value = false
+  showSpielraum.value = false
   answerInput.value = ''
   answerError.value = null
   answerVerdict.value = null
@@ -329,7 +331,16 @@ onMounted(() => {
       </ul>
     </section>
 
-    <section v-if="showNiveau" class="niveau" aria-live="polite">
+    <section v-if="showSpielraum" class="spielraum" aria-labelledby="spielraum-heading">
+      <h2 id="spielraum-heading">Spielraum</h2>
+      <p v-if="playersLoaded && players.length === 0">Noch kein Spieler.</p>
+      <ul v-else-if="players.length > 0">
+        <li v-for="player in players" :key="player.id">{{ player.name }}</li>
+      </ul>
+      <button type="button" disabled>Start</button>
+    </section>
+
+    <section v-else-if="showNiveau" class="niveau" aria-live="polite">
       <h2>Leistungsniveau</h2>
       <template v-if="finishedNiveau || showLevelMessage">
         <p>Dein Leistungsniveau ist ermittelt.</p>
@@ -352,6 +363,9 @@ onMounted(() => {
           @click="continueNiveau"
         >
           Weiter
+        </button>
+        <button v-if="storedNiveau" type="button" @click="showSpielraum = true">
+          Zum Spielraum
         </button>
       </template>
       <form v-else-if="!niveauError" @submit.prevent="submitAnswer">

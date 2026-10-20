@@ -34,6 +34,8 @@ test('shows the empty Spielseason state', async ({ page }) => {
   await expect(page.getByLabel('Spielername')).toHaveCount(0)
   await expect(page.getByText('Noch kein Spieler.')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Leistungsniveau' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Zum Spielraum' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Spielraum' })).toHaveCount(0)
 })
 
 test('shows the player name field only on the matching link', async ({ page }) => {
@@ -70,6 +72,8 @@ test('shows the player name field only on the matching link', async ({ page }) =
   await expect(page.getByLabel('Spielername')).toHaveCount(0)
   await expect(page.getByText('Noch kein Spieler.')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Leistungsniveau' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Zum Spielraum' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Spielraum' })).toHaveCount(0)
   await expect(page.getByText('1+5 =', { exact: true })).toHaveCount(0)
 
   await page.goto('/')
@@ -77,6 +81,8 @@ test('shows the player name field only on the matching link', async ({ page }) =
   await expect(page.getByLabel('Spielername')).toHaveCount(0)
   await expect(page.getByText('Noch kein Spieler.')).toHaveCount(0)
   await expect(page.getByRole('heading', { name: 'Leistungsniveau' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Zum Spielraum' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Spielraum' })).toHaveCount(0)
 })
 
 test('remembers the saved player on the matching link', async ({ page }) => {
@@ -147,6 +153,7 @@ test('shows the math level only to the remembered player', async ({ page }) => {
   await page.goto('/spielseason/abc')
   await socketSent
   await expect(page.getByRole('heading', { name: 'Leistungsniveau' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Zum Spielraum' })).toHaveCount(0)
   await expect(page.getByText('1+5 =', { exact: true })).toBeVisible()
   await expect(page.getByLabel('Antwort')).toBeVisible()
   await expect(page.getByRole('textbox')).toHaveCount(0)
@@ -181,6 +188,8 @@ test('shows the math level only to the remembered player', async ({ page }) => {
 
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'Leistungsniveau' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Zum Spielraum' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Spielraum' })).toHaveCount(0)
   await expect(page.getByText('1+5 =', { exact: true })).toHaveCount(0)
 })
 
@@ -229,6 +238,13 @@ test('shows a stored math level without a new task', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Weiter' })).toHaveCount(0)
   await expect(page.getByLabel('Antwort')).toHaveCount(0)
   await expect(page.getByRole('listitem')).toHaveText('Mia')
+  await page.getByRole('button', { name: 'Zum Spielraum' }).click()
+  const room = page.getByRole('region', { name: 'Spielraum' })
+  await expect(room.getByRole('heading', { name: 'Spielraum' })).toBeVisible()
+  await expect(room.getByRole('listitem')).toHaveText('Mia')
+  await expect(room.getByRole('button', { name: 'Start' })).toBeDisabled()
+  await expect(page.getByText('1+5 =', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'Leistungsniveau' })).toHaveCount(0)
 })
 
 test('hides the task when a level is determined', async ({ page }) => {
@@ -274,4 +290,5 @@ test('hides the task when a level is determined', async ({ page }) => {
   await expect(page.getByText('1+5 =', { exact: true })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Löschen' })).toHaveCount(0)
   await expect(page.getByRole('button', { name: 'Weiter' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Zum Spielraum' })).toHaveCount(0)
 })
