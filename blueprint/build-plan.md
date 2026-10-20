@@ -23,4 +23,4 @@ Replace these examples with your own features:
 - [x] 3. **Unit-Tests einrichten**
 - [x] 4. **Browser-Tests einrichten**
 - [x] 5. **Spieler Namen eingegeben** - Benutzer kann seinen Spielernamen eingeben, nach dem der Link geöffnet wurde. Sobald der Name eingegeben ist, sehen das auch die anderen Spieler sofort. Mit hilfe  von web socket
-- [ ] 6. **Leistungsniveau des Spielers feststellen** - Es soll das Mathe-Leistungsniveau des Spielers ermittelt werden, anhand von, Mal, Minus, Plus Aufgaben. Komplexität wird erreicht indem die Aufgabe erweitert. Beispiel Bei Plus wird aus 1+5, dann 1+5+9. Das Leistungsniveau muss bei ca. 8-10 Sekunde pro aufgabe sein
+- [x] 6. **Leistungsniveau des Spielers feststellen** - Es soll das Mathe-Leistungsniveau des Spielers ermittelt werden, anhand von, Mal, Minus, Plus Aufgaben. Komplexität wird erreicht indem die Aufgabe erweitert. Beispiel Bei Plus wird aus 1+5, dann 1+5+9. Das Leistungsniveau muss bei ca. 8-10 Sekunde pro aufgabe sein

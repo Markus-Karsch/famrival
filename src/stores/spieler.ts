@@ -6,6 +6,12 @@ export interface Spieler {
   name: string
 }
 
+export interface Niveau {
+  plus: string | null
+  minus: string | null
+  mal: string | null
+}
+
 const LIVE_ERROR = 'Die Spieler können gerade nicht aktualisiert werden.'
 
 interface PlayerResponse {
@@ -74,6 +80,18 @@ function removeStoredId(hash: string) {
   }
 }
 
+function isNiveau(value: unknown): value is Niveau {
+  if (typeof value !== 'object' || value == null) {
+    return false
+  }
+  if (!('plus' in value) || !('minus' in value) || !('mal' in value)) {
+    return false
+  }
+  return [value.plus, value.minus, value.mal].every(
+    (entry) => entry == null || typeof entry === 'string',
+  )
+}
+
 export const useSpielerStore = defineStore('spieler', () => {
   const players = ref<Spieler[]>([])
   const loaded = ref(false)
@@ -81,8 +99,13 @@ export const useSpielerStore = defineStore('spieler', () => {
   const error = ref<string | null>(null)
   const liveError = ref<string | null>(null)
   const rememberedId = ref<number | null>(null)
+  const niveau = ref<Niveau | null>(null)
+  const niveauLoaded = ref(false)
+  const niveauSaving = ref(false)
+  const niveauError = ref<string | null>(null)
   let activeHash: string | null = null
   let socket: WebSocket | null = null
+  let niveauRequest = 0
 
   function confirmRemembered() {
     const hash = activeHash
@@ -161,6 +184,14 @@ export const useSpielerStore = defineStore('spieler', () => {
     })
   }
 
+  function resetNiveau() {
+    niveauRequest += 1
+    niveau.value = null
+    niveauLoaded.value = false
+    niveauSaving.value = false
+    niveauError.value = null
+  }
+
   function stop() {
     activeHash = null
     disconnect()
@@ -170,6 +201,7 @@ export const useSpielerStore = defineStore('spieler', () => {
     error.value = null
     liveError.value = null
     rememberedId.value = null
+    resetNiveau()
   }
 
   async function open(hash: string) {
@@ -228,6 +260,79 @@ export const useSpielerStore = defineStore('spieler', () => {
     }
   }
 
+  async function loadNiveau(id: number) {
+    const requestId = ++niveauRequest
+    niveau.value = null
+    niveauLoaded.value = false
+    niveauError.value = null
+    try {
+      const response = await fetch(`/api/spielseasons/current/players/${id}/niveau`)
+      const body = (await response.json()) as { ok?: boolean; niveau?: unknown; error?: string }
+      if (requestId !== niveauRequest) {
+        return
+      }
+      if (body.ok !== true || !isNiveau(body.niveau)) {
+        niveauError.value = body.error ?? 'PostgreSQL ist nicht erreichbar.'
+        return
+      }
+      niveau.value = {
+        plus: body.niveau.plus,
+        minus: body.niveau.minus,
+        mal: body.niveau.mal,
+      }
+    } catch {
+      if (requestId === niveauRequest) {
+        niveauError.value = 'Die API ist nicht erreichbar.'
+      }
+    } finally {
+      if (requestId === niveauRequest) {
+        niveauLoaded.value = true
+      }
+    }
+  }
+
+  async function saveNiveau(id: number, value: { plus: string; minus: string; mal: string }) {
+    const requestId = niveauRequest
+    niveauSaving.value = true
+    niveauError.value = null
+    try {
+      const response = await fetch(`/api/spielseasons/current/players/${id}/niveau`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(value),
+      })
+      const body = (await response.json()) as { ok?: boolean; niveau?: unknown; error?: string }
+      if (requestId !== niveauRequest) {
+        return false
+      }
+      if (
+        body.ok !== true ||
+        !isNiveau(body.niveau) ||
+        body.niveau.plus == null ||
+        body.niveau.minus == null ||
+        body.niveau.mal == null
+      ) {
+        niveauError.value = body.error ?? 'PostgreSQL ist nicht erreichbar.'
+        return false
+      }
+      niveau.value = {
+        plus: body.niveau.plus,
+        minus: body.niveau.minus,
+        mal: body.niveau.mal,
+      }
+      return true
+    } catch {
+      if (requestId === niveauRequest) {
+        niveauError.value = 'Die API ist nicht erreichbar.'
+      }
+      return false
+    } finally {
+      if (requestId === niveauRequest) {
+        niveauSaving.value = false
+      }
+    }
+  }
+
   return {
     players,
     loaded,
@@ -235,9 +340,15 @@ export const useSpielerStore = defineStore('spieler', () => {
     error,
     liveError,
     rememberedId,
+    niveau,
+    niveauLoaded,
+    niveauSaving,
+    niveauError,
     clearSaveError,
     stop,
     open,
     save,
+    loadNiveau,
+    saveNiveau,
   }
 })

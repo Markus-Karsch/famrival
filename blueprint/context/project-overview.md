@@ -1,6 +1,6 @@
 # FamRival - Project Overview
 
-<!-- blueprint:source-hash 05ba4f7851cacb5dd22e59a310f1b49cbfdd690cc66d751edc3d6c6623b6ef80 -->
+<!-- blueprint:source-hash db8c90632c683667912329865b1793280ecc3326816758f093b286958e6e7cd6 -->
 
 > Familien-Wettbewerbsspiel für Mathe, in dem Kinder, Eltern, Großeltern und Freunde fair gegeneinander gewinnen können.
 

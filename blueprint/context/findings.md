@@ -9,8 +9,9 @@
 
 ### F-02 [P2] open - Stored player still sees the name field while the list loads
 
-**File:** src/views/HomeView.vue:144
+**File:** src/views/HomeView.vue:314
 **Found:** 2026-10-19 by /audit (scope: current; lens: quality)
 **Why it matters:** `open` writes `rememberedId` before `GET /api/spielseasons/current/players` returns, while `players` is still empty. The greeting renders only when that id is already in the list, and the name form is the `v-else`. On every return to the matching link, "Spielername" and "Name speichern" stay on screen until that response arrives. A submit in that wait creates another row. `confirmRemembered` then treats the arriving list as final: if the response started before `save` and does not contain the id just stored, it deletes `famrival.player.<hash>` and the field comes back.
 **Suggested fix:** Show the form only after the list has loaded and `rememberedId` is null. While a stored id is not yet confirmed, do not fall through to the empty form. Do not let an `open` response that started before `save` remove the id `save` just stored.
-**Resolution:**
+**Resolution:** 2026-10-20 independent review reconfirmed this path. `open` still assigns `rememberedId` before the player list returns (`src/stores/spieler.ts:209`), and the name form is still the `v-else` of `selfName`. 2026-10-20 fresh review reconfirmed the same path at `src/stores/spieler.ts:209` and `src/views/HomeView.vue:314`. Status stays open.
+

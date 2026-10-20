@@ -2,6 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http'
 import { Pool, type DatabaseError } from 'pg'
 import { WebSocket, WebSocketServer } from 'ws'
+import { isNiveauExpression, niveauError, niveauPattern, type Operation } from '../src/niveau.ts'
 import { normalizePlayerName } from '../src/player-name.ts'
 
 const port = Number(process.env.PORT ?? 3001)
@@ -114,6 +115,33 @@ async function ensureHashConstraint() {
   }
 }
 
+async function ensureNiveauConstraint(
+  column: 'niveau_plus' | 'niveau_minus' | 'niveau_mal',
+  operation: Operation,
+) {
+  if (!pool) {
+    return
+  }
+  const name = `spieler_${column}`
+  const pattern = niveauPattern(operation)
+  const existing = await pool.query<{ definition: string }>(
+    `select pg_get_constraintdef(oid) as definition
+     from pg_constraint
+     where conname = $1 and conrelid = 'spieler'::regclass`,
+    [name],
+  )
+  const definition = existing.rows[0]?.definition ?? ''
+  if (definition.includes('~') && definition.includes('[1-9]')) {
+    return
+  }
+  if (definition) {
+    await pool.query(`alter table spieler drop constraint ${name}`)
+  }
+  await pool.query(
+    `alter table spieler add constraint ${name} check (${column} is null or ${column} ~ '${pattern}')`,
+  )
+}
+
 async function ensureSchema() {
   if (!pool) {
     return
@@ -124,6 +152,12 @@ async function ensureSchema() {
   await pool.query('alter table spielseason alter column hash set not null')
   await ensureHashConstraint()
   await pool.query(createSpielerTable)
+  await pool.query('alter table spieler add column if not exists niveau_plus text')
+  await pool.query('alter table spieler add column if not exists niveau_minus text')
+  await pool.query('alter table spieler add column if not exists niveau_mal text')
+  await ensureNiveauConstraint('niveau_plus', 'plus')
+  await ensureNiveauConstraint('niveau_minus', 'minus')
+  await ensureNiveauConstraint('niveau_mal', 'mal')
 }
 
 async function readCurrent() {
@@ -288,6 +322,120 @@ async function handlePlayers(request: IncomingMessage, response: ServerResponse)
   }
 }
 
+interface NiveauRow {
+  niveau_plus: string | null
+  niveau_minus: string | null
+  niveau_mal: string | null
+}
+
+function toNiveau(row: NiveauRow) {
+  return {
+    plus: row.niveau_plus,
+    minus: row.niveau_minus,
+    mal: row.niveau_mal,
+  }
+}
+
+function niveauComplete(row: NiveauRow) {
+  return row.niveau_plus != null && row.niveau_minus != null && row.niveau_mal != null
+}
+
+function readNiveauBody(value: unknown) {
+  if (typeof value !== 'object' || value == null) {
+    return null
+  }
+  if (!('plus' in value) || !isNiveauExpression('plus', value.plus)) {
+    return null
+  }
+  if (!('minus' in value) || !isNiveauExpression('minus', value.minus)) {
+    return null
+  }
+  if (!('mal' in value) || !isNiveauExpression('mal', value.mal)) {
+    return null
+  }
+  return { plus: value.plus, minus: value.minus, mal: value.mal }
+}
+
+async function handleNiveau(playerId: number, request: IncomingMessage, response: ServerResponse) {
+  if (!pool) {
+    databaseUnavailable(response, 'DATABASE_URL fehlt.')
+    return
+  }
+
+  try {
+    await ensureSchema()
+    const season = await readCurrent()
+    if (!season) {
+      sendJson(response, 404, { ok: false, error: 'Noch keine Spielseason.' })
+      return
+    }
+
+    if (request.method === 'GET') {
+      const result = await pool.query<NiveauRow>(
+        `select niveau_plus, niveau_minus, niveau_mal
+         from spieler
+         where id = $1 and spielseason_id = $2`,
+        [playerId, season.id],
+      )
+      const row = result.rows[0]
+      if (!row) {
+        sendJson(response, 404, { ok: false, error: 'Noch keine Spielseason.' })
+        return
+      }
+      sendJson(response, 200, { ok: true, niveau: toNiveau(row) })
+      return
+    }
+
+    let value: unknown
+    try {
+      value = JSON.parse(await readBody(request))
+    } catch {
+      sendJson(response, 400, { ok: false, error: niveauError() })
+      return
+    }
+    const niveau = readNiveauBody(value)
+    if (!niveau) {
+      sendJson(response, 400, { ok: false, error: niveauError() })
+      return
+    }
+
+    const updated = await pool.query<NiveauRow>(
+      `update spieler
+       set niveau_plus = $3, niveau_minus = $4, niveau_mal = $5
+       where id = $1
+         and spielseason_id = $2
+         and (niveau_plus is null or niveau_minus is null or niveau_mal is null)
+       returning niveau_plus, niveau_minus, niveau_mal`,
+      [playerId, season.id, niveau.plus, niveau.minus, niveau.mal],
+    )
+    const saved = updated.rows[0]
+    if (saved) {
+      sendJson(response, 201, { ok: true, niveau: toNiveau(saved) })
+      return
+    }
+
+    const existing = await pool.query<NiveauRow>(
+      `select niveau_plus, niveau_minus, niveau_mal
+       from spieler
+       where id = $1 and spielseason_id = $2`,
+      [playerId, season.id],
+    )
+    const row = existing.rows[0]
+    if (!row || !niveauComplete(row)) {
+      sendJson(response, 404, { ok: false, error: 'Noch keine Spielseason.' })
+      return
+    }
+    sendJson(response, 200, { ok: true, niveau: toNiveau(row) })
+  } catch (error) {
+    if (isDatabaseError(error) && error.code === '23514') {
+      sendJson(response, 400, { ok: false, error: niveauError() })
+      return
+    }
+    console.error('Saving a Leistungsniveau failed', error)
+    databaseUnavailable(response, 'PostgreSQL ist nicht erreichbar.')
+  }
+}
+
 async function handleHealth(response: ServerResponse) {
   if (!pool) {
     databaseUnavailable(response, 'DATABASE_URL fehlt.')
@@ -376,6 +524,16 @@ function handleRequest(request: IncomingMessage, response: ServerResponse) {
     url.pathname === '/api/spielseasons/current/players'
   ) {
     void handlePlayers(request, response)
+    return
+  }
+  const niveauPath = /^\/api\/spielseasons\/current\/players\/(\d+)\/niveau$/.exec(url.pathname)
+  const playerId = niveauPath ? Number(niveauPath[1]) : Number.NaN
+  if (
+    niveauPath &&
+    Number.isSafeInteger(playerId) &&
+    (request.method === 'GET' || request.method === 'POST')
+  ) {
+    void handleNiveau(playerId, request, response)
     return
   }
 
