@@ -24,3 +24,5 @@ Replace these examples with your own features:
 - [x] 4. **Browser-Tests einrichten**
 - [x] 5. **Spieler Namen eingegeben** - Benutzer kann seinen Spielernamen eingeben, nach dem der Link geöffnet wurde. Sobald der Name eingegeben ist, sehen das auch die anderen Spieler sofort. Mit hilfe  von web socket
 - [x] 6. **Leistungsniveau des Spielers feststellen** - Es soll das Mathe-Leistungsniveau des Spielers ermittelt werden, anhand von, Mal, Minus, Plus Aufgaben. Komplexität wird erreicht indem die Aufgabe erweitert. Beispiel Bei Plus wird aus 1+5, dann 1+5+9. Das Leistungsniveau muss bei ca. 8-10 Sekunde pro aufgabe sein
+
+- [ ] 7. **Die Benutzer können nach dem Leistungsniveautest jetzt in den Spielraum über ein Button wechseln** - Im Spielraum gibt es einen Startknopf und man sieht alle Teinehmer. Mit Start wird das Spiel gestartet und jeder bekommt für sein Niveau die Aufgaben. Wer zuerst 5 Aufgaben richtig hat gewonnen und das Spiel ist für alle beendet. Der Gewinner wir bei jedem angezeigt. Es kann dann eine neue Runde gestartet werden.
